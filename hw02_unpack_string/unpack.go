@@ -12,9 +12,8 @@ func IsNumber(input rune) (bool, int) {
 	result, err := strconv.Atoi(string(input))
 	if err == nil {
 		return true, result
-	} else {
-		return false, 0
 	}
+	return false, 0
 }
 
 func Unpack(input string) (string, error) {
@@ -34,14 +33,13 @@ func Unpack(input string) (string, error) {
 				numberCur, _ := IsNumber(j)
 				if numberCur {
 					return "", ErrInvalidString
-				} else {
-					previousSymbol = j
-					// если символ последний
-					if i == len([]rune((input)))-1 {
-						output.WriteString(string(j))
-					}
-					continue
 				}
+				previousSymbol = j
+				// если символ последний
+				if i == len([]rune((input)))-1 {
+					output.WriteString(string(j))
+				}
+				continue
 			} else {
 				numberCur, value := IsNumber(j)
 				if numberCur {
