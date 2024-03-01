@@ -18,42 +18,36 @@ func IsNumber(input rune) (bool, int) {
 
 func Unpack(input string) (string, error) {
 	var output strings.Builder
-	//var currentSymbol rune
 	var previousSymbol rune
-	for i, j := range input {
+	for i, currentSymbol := range input {
 		if i == 0 {
-			var number, _ = IsNumber(j)
+			number, _ := IsNumber(currentSymbol)
 			if number {
 				return "", ErrInvalidString
 			}
-			previousSymbol = j
-		} else {
-			numberPrev, _ := IsNumber(previousSymbol)
-			if numberPrev {
-				numberCur, _ := IsNumber(j)
-				if numberCur {
-					return "", ErrInvalidString
-				}
-				previousSymbol = j
-				// если символ последний
-				if i == len([]rune((input)))-1 {
-					output.WriteString(string(j))
-				}
-				continue
-			} else {
-				numberCur, value := IsNumber(j)
-				if numberCur {
-					output.WriteString(strings.Repeat(string(previousSymbol), value))
-				} else {
-					output.WriteString(string(previousSymbol))
-					// если символ последний
-					if i == len([]rune((input)))-1 {
-						output.WriteString(string(j))
-					}
-				}
-				previousSymbol = j
+			previousSymbol = currentSymbol
+			continue
+		}
+		numberPrev, _ := IsNumber(previousSymbol)
+		numberCur, valueCur := IsNumber(currentSymbol)
+		switch {
+		case numberPrev && numberCur:
+			return "", ErrInvalidString
+		case numberPrev && !numberCur:
+			previousSymbol = currentSymbol
+			if i == len([]rune((input)))-1 {
+				output.WriteString(string(currentSymbol))
+			}
+			continue
+		case !numberPrev && numberCur:
+			output.WriteString(strings.Repeat(string(previousSymbol), valueCur))
+		case !numberPrev && !numberCur:
+			output.WriteString(string(previousSymbol))
+			if i == len([]rune((input)))-1 {
+				output.WriteString(string(currentSymbol))
 			}
 		}
+		previousSymbol = currentSymbol
 	}
 
 	return output.String(), nil
