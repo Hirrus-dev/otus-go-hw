@@ -3,9 +3,12 @@ package hw04lrucache
 type Key string
 
 type Cache interface {
-	Set(key Key, value interface{}) (bool, error) // Добавить значение в кэш по ключу.
-	Get(key Key) (interface{}, bool, error)       // Получить значение из кэша по ключу.
-	Clear() error                                 // Очистить кэш.
+	// Set Добавить значение в кэш по ключу.
+	Set(key Key, value interface{}) (bool, error)
+	// Get Получить значение из кэша по ключу.
+	Get(key Key) (interface{}, bool, error)
+	// Clear Очистить кэш.
+	Clear() error // Очистить кэш.
 }
 
 type lruCache struct {
@@ -44,13 +47,13 @@ func (l *lruCache) Set(key Key, value interface{}) (bool, error) {
 
 func (l *lruCache) Get(key Key) (interface{}, bool, error) {
 	_, ok := l.items[key]
-	if ok {
-		if err := l.queue.MoveToFront(l.items[key]); err != nil {
-			return nil, false, err
-		}
-		return l.items[key].Value.(*Item).value, true, nil
+	if !ok {
+		return nil, false, nil
 	}
-	return nil, false, nil
+	if err := l.queue.MoveToFront(l.items[key]); err != nil {
+		return nil, false, err
+	}
+	return l.items[key].Value.(*Item).value, true, nil
 }
 
 func (l *lruCache) Clear() error {
