@@ -3,6 +3,7 @@ package hw05parallelexecution
 import (
 	"errors"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -21,18 +22,18 @@ func Run(tasks []Task, n, m int) error {
 		n = len(tasks)
 	}
 	isErrorsLimitExceeded := false
-	maxErrCount := 0
+	maxErrCount := int32(0)
 	tasksChannel := make(chan Task)
 	resultsChannel := make(chan error)
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-		for i := 0; i < len(tasks); i++ {
-			if maxErrCount >= m && m > 0 {
+		for _, task := range tasks {
+			if int(maxErrCount) >= m && m > 0 {
 				isErrorsLimitExceeded = true
 				break
 			}
-			tasksChannel <- tasks[i]
+			tasksChannel <- task
 			time.Sleep(time.Millisecond)
 		}
 		close(tasksChannel) // закрываем канал по завершении
@@ -58,13 +59,12 @@ func Run(tasks []Task, n, m int) error {
 				break
 			}
 			if result != nil {
-				maxErrCount++
+				atomic.AddInt32(&maxErrCount, 1)
 			}
 		}
 	}()
 	wg.Wait()
 	close(resultsChannel)
-
 	if isErrorsLimitExceeded {
 		return ErrErrorsLimitExceeded
 	}
