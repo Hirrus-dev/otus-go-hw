@@ -4,7 +4,6 @@ import (
 	"errors"
 	"sync"
 	"sync/atomic"
-	"time"
 )
 
 var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
@@ -34,7 +33,6 @@ func Run(tasks []Task, n, m int) error {
 				break
 			}
 			tasksChannel <- task
-			time.Sleep(time.Millisecond)
 		}
 		close(tasksChannel) // закрываем канал по завершении
 		wg.Done()
