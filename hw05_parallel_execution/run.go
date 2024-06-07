@@ -40,22 +40,14 @@ func Run(tasks []Task, n, m int) error {
 	for i := 0; i < n; i++ {
 		wg.Add(1)
 		go func() {
-			for {
-				task, open := <-tasksChannel
-				if !open {
-					break
-				}
+			for task := range tasksChannel {
 				resultsChannel <- task()
 			}
 			wg.Done()
 		}()
 	}
 	go func() {
-		for {
-			result, open := <-resultsChannel
-			if !open {
-				break
-			}
+		for result := range resultsChannel {
 			if result != nil {
 				atomic.AddInt32(&maxErrCount, 1)
 			}
